@@ -1,8 +1,10 @@
 from django.db import models
+from django.utils import timezone
 
 
 def import_file_upload_to(instance: "ImportFile", filename: str) -> str:
-    return f"imports/{instance.created_at:%Y/%m/%d}/{filename}"
+    now = timezone.now()
+    return f"imports/{now:%Y/%m/%d}/{filename}"
 
 
 class ImportFile(models.Model):
