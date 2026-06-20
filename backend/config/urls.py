@@ -4,8 +4,12 @@ from django.contrib import admin
 from django.urls import path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from config.api_router import router
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+
+    path("api/", include(router.urls)),
 
     path(
         "api/schema/",
