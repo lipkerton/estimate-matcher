@@ -33,10 +33,10 @@ class EstimateItemSerializer(serializers.ModelSerializer):
     product_sku = serializers.CharField(source="product.sku", read_only=True)
 
     class Meta:
-        models = EstimateItem
+        model = EstimateItem
         fields = (
             "id",
-            "estimates",
+            "estimate",
             "raw_sku",
             "raw_name",
             "unit",

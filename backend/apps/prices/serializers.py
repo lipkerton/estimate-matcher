@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.prices.models import PriceList
+from apps.prices.models import PriceList, SupplierPriceItem
 
 
 class PriceListSerializer(serializers.ModelSerializer):
@@ -31,6 +31,7 @@ class SupplierPriceItemSerializer(serializers.ModelSerializer):
     product_sku = serializers.CharField(source="product.sku", read_only=True)
 
     class Meta:
+        model = SupplierPriceItem
         fields = (
             "id",
             "price_list",
