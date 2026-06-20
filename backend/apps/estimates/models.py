@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from django.db import models
 
 from apps.catalog.models import Product
@@ -9,9 +7,7 @@ from apps.projects.models import Project
 
 class Estimate(models.Model):
     project = models.ForeignKey(
-        Project,
-        on_delete=models.CASCADE,
-        related_name="estimates"
+        Project, on_delete=models.CASCADE, related_name="estimates"
     )
     name = models.CharField(max_length=255)
 
@@ -20,7 +16,7 @@ class Estimate(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="estimate"
+        related_name="estimate",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -32,7 +28,7 @@ class Estimate(models.Model):
             models.Index(fields=["name"]),
             models.Index(fields=["created_at"]),
         ]
-    
+
     def __str__(self) -> str:
         return f"{self.project.name} - {self.name}"
 
@@ -44,11 +40,9 @@ class EstimateItem(models.Model):
         UNMATCHED = "unmatched", "Unmatched"
         NO_MATCH = "no_match", "No match"
         MANUAL = "manual", "Manual"
-    
+
     estimate = models.ForeignKey(
-        Estimate,
-        on_delete=models.CASCADE,
-        related_name="items"
+        Estimate, on_delete=models.CASCADE, related_name="items"
     )
 
     raw_sku = models.CharField(max_length=128, blank=True)

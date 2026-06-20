@@ -23,7 +23,7 @@ class PriceListViewSet(viewsets.ModelViewSet):
         supplier_id = self.request.query_params.get("supplier")
         if supplier_id:
             queryset = queryset.filter(supplier_id=supplier_id)
-        
+
         return queryset
 
 
@@ -43,5 +43,5 @@ class SupplierPriceItemViewSet(viewsets.ModelViewSet):
         price_list_id = self.request.query_params.get("price_list")
         if price_list_id:
             queryset = queryset.filter(price_list_id=price_list_id)
-        
+
         return queryset

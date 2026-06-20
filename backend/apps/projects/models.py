@@ -13,6 +13,6 @@ class Project(models.Model):
         indexes = [
             models.Index(fields=["name"]),
         ]
-    
+
     def __str__(self) -> str:
         return self.name

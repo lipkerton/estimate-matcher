@@ -5,30 +5,80 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('catalog', '0001_initial'),
-        ('estimates', '0001_initial'),
+        ("catalog", "0001_initial"),
+        ("estimates", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='MatchCandidate',
+            name="MatchCandidate",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('confidence', models.DecimalField(decimal_places=4, max_digits=5)),
-                ('source', models.CharField(choices=[('exact_sku', 'Exact SKU'), ('fuzzy_name', 'Fuzzy name'), ('ai', 'AI'), ('manual', 'Manual')], max_length=32)),
-                ('reason', models.TextField(blank=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('estimate_item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='match_candidates', to='estimates.estimateitem')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='match_candidates', to='catalog.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("confidence", models.DecimalField(decimal_places=4, max_digits=5)),
+                (
+                    "source",
+                    models.CharField(
+                        choices=[
+                            ("exact_sku", "Exact SKU"),
+                            ("fuzzy_name", "Fuzzy name"),
+                            ("ai", "AI"),
+                            ("manual", "Manual"),
+                        ],
+                        max_length=32,
+                    ),
+                ),
+                ("reason", models.TextField(blank=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "estimate_item",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="match_candidates",
+                        to="estimates.estimateitem",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="match_candidates",
+                        to="catalog.product",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-confidence'],
-                'indexes': [models.Index(fields=['estimate_item'], name='matching_ma_estimat_610a3a_idx'), models.Index(fields=['product'], name='matching_ma_product_a46beb_idx'), models.Index(fields=['source'], name='matching_ma_source_febbe4_idx'), models.Index(fields=['confidence'], name='matching_ma_confide_41cafe_idx')],
-                'constraints': [models.UniqueConstraint(fields=('estimate_item', 'product', 'source'), name='unique_match_candidate_per_source')],
+                "ordering": ["-confidence"],
+                "indexes": [
+                    models.Index(
+                        fields=["estimate_item"], name="matching_ma_estimat_610a3a_idx"
+                    ),
+                    models.Index(
+                        fields=["product"], name="matching_ma_product_a46beb_idx"
+                    ),
+                    models.Index(
+                        fields=["source"], name="matching_ma_source_febbe4_idx"
+                    ),
+                    models.Index(
+                        fields=["confidence"], name="matching_ma_confide_41cafe_idx"
+                    ),
+                ],
+                "constraints": [
+                    models.UniqueConstraint(
+                        fields=("estimate_item", "product", "source"),
+                        name="unique_match_candidate_per_source",
+                    )
+                ],
             },
         ),
     ]

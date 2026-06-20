@@ -3,15 +3,12 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class AppSettings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR.parent / ".env",
-        env_file_encoding="utf-8",
-        extra="ignore"
+        env_file=BASE_DIR.parent / ".env", env_file_encoding="utf-8", extra="ignore"
     )
 
     DJANGO_SECRET_KEY: str = Field(default="dev-secret-key")
@@ -34,7 +31,9 @@ class AppSettings(BaseSettings):
 
     @property
     def cors_allowed_origins_list(self) -> list[str]:
-        return [origin.strip() for origin in self.CORS_ALLOWED_ORIGINS.split(",") if origin]
+        return [
+            origin.strip() for origin in self.CORS_ALLOWED_ORIGINS.split(",") if origin
+        ]
 
 
 settings = AppSettings()

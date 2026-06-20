@@ -13,7 +13,7 @@ class ImportFile(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-    
+
     def __str__(self) -> str:
         return self.original_filename
 
@@ -22,7 +22,7 @@ class ImportJob(models.Model):
     class ImportType(models.TextChoices):
         PRICE_LIST = "price_list", "Price list"
         ESTIMATE = "estimate", "Estimate"
-    
+
     class Status(models.TextChoices):
         PENDING = "pending", "Pending"
         PROCESSING = "processing", "Processing"
@@ -61,6 +61,6 @@ class ImportJob(models.Model):
             models.Index(fields=["status"]),
             models.Index(fields=["created_at"]),
         ]
-    
+
     def __str__(self) -> str:
         return f"{self.import_type} - {self.status} - {self.created_at:%Y-%m-%d %H:%M}"

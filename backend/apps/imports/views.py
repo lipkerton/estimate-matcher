@@ -27,9 +27,9 @@ class ImportJobViewSet(viewsets.ReadOnlyModelViewSet):
         import_type = self.request.query_params.get("import_type")
         if import_type:
             queryset = queryset.filter(import_type=import_type)
-        
+
         status = self.request.query_params.get("status")
         if status:
             queryset = queryset.filter(status=status)
-        
+
         return queryset

@@ -5,55 +5,89 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='ProductGroup',
+            name="ProductGroup",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('parent', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='children', to='catalog.productgroup')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "parent",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="children",
+                        to="catalog.productgroup",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['name'],
+                "ordering": ["name"],
             },
         ),
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sku', models.CharField(max_length=128, unique=True)),
-                ('name', models.CharField(max_length=512)),
-                ('unit', models.CharField(max_length=64)),
-                ('normalized_name', models.CharField(blank=True, max_length=512)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('group', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='products', to='catalog.productgroup')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("sku", models.CharField(max_length=128, unique=True)),
+                ("name", models.CharField(max_length=512)),
+                ("unit", models.CharField(max_length=64)),
+                ("normalized_name", models.CharField(blank=True, max_length=512)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "group",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="products",
+                        to="catalog.productgroup",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['name'],
+                "ordering": ["name"],
             },
         ),
         migrations.AddIndex(
-            model_name='productgroup',
-            index=models.Index(fields=['name'], name='catalog_pro_name_258a3c_idx'),
+            model_name="productgroup",
+            index=models.Index(fields=["name"], name="catalog_pro_name_258a3c_idx"),
         ),
         migrations.AddIndex(
-            model_name='product',
-            index=models.Index(fields=['sku'], name='catalog_pro_sku_2c4c34_idx'),
+            model_name="product",
+            index=models.Index(fields=["sku"], name="catalog_pro_sku_2c4c34_idx"),
         ),
         migrations.AddIndex(
-            model_name='product',
-            index=models.Index(fields=['name'], name='catalog_pro_name_f603c0_idx'),
+            model_name="product",
+            index=models.Index(fields=["name"], name="catalog_pro_name_f603c0_idx"),
         ),
         migrations.AddIndex(
-            model_name='product',
-            index=models.Index(fields=['normalized_name'], name='catalog_pro_normali_e11b72_idx'),
+            model_name="product",
+            index=models.Index(
+                fields=["normalized_name"], name="catalog_pro_normali_e11b72_idx"
+            ),
         ),
     ]

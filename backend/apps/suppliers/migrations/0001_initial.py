@@ -4,26 +4,47 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Supplier',
+            name="Supplier",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('inn', models.CharField(max_length=12, unique=True)),
-                ('currency', models.CharField(choices=[('RUB', 'Russian ruble'), ('USD', 'US dollar'), ('EUR', 'Euro'), ('CNY', 'Chinese yuan')], default='RUB', max_length=3)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("inn", models.CharField(max_length=12, unique=True)),
+                (
+                    "currency",
+                    models.CharField(
+                        choices=[
+                            ("RUB", "Russian ruble"),
+                            ("USD", "US dollar"),
+                            ("EUR", "Euro"),
+                            ("CNY", "Chinese yuan"),
+                        ],
+                        default="RUB",
+                        max_length=3,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'ordering': ['name'],
-                'indexes': [models.Index(fields=['name'], name='suppliers_s_name_6277a9_idx'), models.Index(fields=['inn'], name='suppliers_s_inn_49cb29_idx')],
+                "ordering": ["name"],
+                "indexes": [
+                    models.Index(fields=["name"], name="suppliers_s_name_6277a9_idx"),
+                    models.Index(fields=["inn"], name="suppliers_s_inn_49cb29_idx"),
+                ],
             },
         ),
     ]

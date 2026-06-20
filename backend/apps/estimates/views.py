@@ -23,7 +23,7 @@ class EstimateViewSet(viewsets.ModelViewSet):
         project_id = self.request.query_params.get("project")
         if project_id:
             queryset = queryset.filter(project_id=project_id)
-        
+
         return queryset
 
 
@@ -52,9 +52,9 @@ class EstimateItemViewSet(viewsets.ModelViewSet):
         estimate_id = self.request.query_params.get("estimate")
         if estimate_id:
             queryset = queryset.filter(estimate_id=estimate_id)
-        
+
         matching_status = self.request.query_params.get("matching_status")
         if matching_status:
             queryset = queryset.filter(matching_status=matching_status)
-    
+
         return queryset

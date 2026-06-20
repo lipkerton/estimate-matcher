@@ -8,7 +8,7 @@ class ProductGroup(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="children"
+        related_name="children",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -18,7 +18,7 @@ class ProductGroup(models.Model):
         indexes = [
             models.Index(fields=["name"]),
         ]
-    
+
     def __str__(self) -> str:
         return self.name
 
@@ -48,6 +48,6 @@ class Product(models.Model):
             models.Index(fields=["name"]),
             models.Index(fields=["normalized_name"]),
         ]
-    
+
     def __str__(self) -> str:
         return f"{self.sku} - {self.name}"

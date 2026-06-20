@@ -10,7 +10,7 @@ class MatchCandidate(models.Model):
         FUZZY_NAME = "fuzzy_name", "Fuzzy name"
         AI = "ai", "AI"
         MANUAL = "manual", "Manual"
-    
+
     estimate_item = models.ForeignKey(
         EstimateItem,
         on_delete=models.CASCADE,
@@ -21,7 +21,7 @@ class MatchCandidate(models.Model):
         on_delete=models.CASCADE,
         related_name="match_candidates",
     )
-    
+
     confidence = models.DecimalField(max_digits=5, decimal_places=4)
     source = models.CharField(max_length=32, choices=Source.choices)
     reason = models.TextField(blank=True)
@@ -42,6 +42,6 @@ class MatchCandidate(models.Model):
                 name="unique_match_candidate_per_source",
             )
         ]
-    
+
     def __str__(self) -> str:
         return f"{self.estimate_item_id} -> {self.product_id} ({self.confidence})"

@@ -7,13 +7,11 @@ class Supplier(models.Model):
         USD = "USD", "US dollar"
         EUR = "EUR", "Euro"
         CNY = "CNY", "Chinese yuan"
-    
+
     name = models.CharField(max_length=255)
     inn = models.CharField(max_length=12, unique=True)
     currency = models.CharField(
-        max_length=3,
-        choices=Currency.choices,
-        default=Currency.RUB
+        max_length=3, choices=Currency.choices, default=Currency.RUB
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -25,6 +23,6 @@ class Supplier(models.Model):
             models.Index(fields=["name"]),
             models.Index(fields=["inn"]),
         ]
-    
+
     def __str__(self) -> str:
         return f"{self.name} ({self.inn})"
