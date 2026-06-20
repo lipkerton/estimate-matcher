@@ -90,6 +90,7 @@ CORS_ALLOWED_ORIGINS = settings.cors_allowed_origins_list
 CELERY_BROKER_URL = settings.REDIS_URL
 CELERY_RESULT_BACKEND = settings.REDIS_URL
 CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -108,5 +109,8 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 STATIC_URL = "static/"
