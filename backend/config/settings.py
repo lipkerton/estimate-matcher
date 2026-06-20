@@ -24,7 +24,7 @@ INSTALLED_APPS = [
     "apps.projects",
     "apps.estimates",
     "apps.imports",
-    "apps.prices"
+    "apps.prices",
     "apps.matching",
 ]
 

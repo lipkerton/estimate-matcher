@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Suppliers(models.Model):
+class Supplier(models.Model):
     class Currency(models.TextChoices):
         RUB = "RUB", "Russian ruble"
         USD = "USD", "US dollar"
