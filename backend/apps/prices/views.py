@@ -1,7 +1,7 @@
 from django.db.models import Count
 from rest_framework import filters, viewsets
 
-from apps.prices.models import PriceLists, SupplierPriceItem
+from apps.prices.models import PriceList, SupplierPriceItem
 from apps.prices.serializers import PriceListSerializer, SupplierPriceItemSerializer
 
 
@@ -29,7 +29,7 @@ class PriceListViewSet(viewsets.ModelViewSet):
 
 class SupplierPriceItemViewSet(viewsets.ModelViewSet):
     serializer_class = SupplierPriceItemSerializer
-    filter_backends = (filters.SearchFilter, filters.OrederingFilter)
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ("suppliers_sku", "suppliers_name", "product__sku", "product__name")
     ordering_fields = ("id", "supplier_sku", "supplier_name", "price", "created_at")
     ordering = ("id",)

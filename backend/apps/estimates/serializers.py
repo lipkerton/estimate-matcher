@@ -5,7 +5,7 @@ from apps.estimates.models import Estimate, EstimateItem
 
 class EstimateSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source="project.name", read_only=True)
-    items_count = serializers.IntegerField(read)
+    items_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Estimate
