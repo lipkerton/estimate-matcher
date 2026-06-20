@@ -1,0 +1,21 @@
+sevices:
+  db:
+    image: postgres:16
+    container_name: estimate_matcher_db
+    evironment:
+      POSTGRES_DB: ${POSTGRES_DB:-estimate_matcher}
+      POSTGRES_USER: ${POSTGRES_USER:-estimate_user}
+      POSTGRES_PASS: ${POSTGRES_PASS:-estimate_password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+  redis:
+    image: redis:7
+    container_name: estimate_matcher_redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
+volumes:
+  postgres_data:
