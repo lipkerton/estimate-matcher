@@ -35,7 +35,7 @@ class EstimateImportStarter:
                 import_job=import_job,
                 name=name,
             )
-    
+
     def _validate_mapping(self, mapping: dict[str, Any]) -> None:
         required_fields = ("name", "quantity")
 
@@ -65,7 +65,7 @@ class EstimateImportStarter:
                 raise InvalidColumnMappingError(
                     f"Column mapping field '{field}' must be integer."
                 )
-            
+
             if value < 0:
                 raise InvalidColumnMappingError(
                     f"Column mapping field '{field}' cannot be negative."
@@ -77,7 +77,7 @@ class EstimateParserService:
 
     def __init__(self, row_reader: ExcelRowReader | None = None) -> None:
         self.row_reader = row_reader or ExcelRowReader()
-    
+
     def parse(self, import_job_id: int) -> dict[str, int]:
         import_job = ImportJob.objects.select_related("import_file").get(
             id=import_job_id,
@@ -118,33 +118,30 @@ class EstimateParserService:
 
                 if item is not None:
                     items_to_create.append(item)
-                
+
                 if processed_rows % self.PROGRESS_UPDATE_EVERY == 0:
                     self._update_progress(import_job, processed_rows, total_rows)
-            
+
             with transaction.atomic():
                 estimate.items.all().delete()
                 EstimateItem.objects.bulk_create(
                     items_to_create,
                     batch_size=1000,
                 )
-            
+
             self._mark_success(import_job, processed_rows, total_rows)
 
             return {
                 "processed_rows": processed_rows,
                 "created_items": len(items_to_create),
             }
-        
+
         except Exception as exc:
             self._mark_failed(import_job, str(exc))
             raise
-    
+
     def _build_estimate_item(
-        self,
-        estimate: Estimate,
-        excel_row: ExcelRow,
-        mapping: dict[str, Any]
+        self, estimate: Estimate, excel_row: ExcelRow, mapping: dict[str, Any]
     ) -> EstimateItem | None:
         values = excel_row.values
 
@@ -152,7 +149,7 @@ class EstimateParserService:
 
         if not raw_name:
             return None
-        
+
         raw_sku = self._get_string_value(values, mapping.get("sku"))
         unit = self._get_string_value(values, mapping.get("unit"))
 
@@ -167,10 +164,7 @@ class EstimateParserService:
             mapping.get("installation_price"),
         )
 
-        raw_row = {
-            str(index): value
-            for index, value in enumerate(values)
-        }
+        raw_row = {str(index): value for index, value in enumerate(values)}
 
         return EstimateItem(
             estimate=estimate,
@@ -183,24 +177,24 @@ class EstimateParserService:
             raw_row=raw_row,
             row_number=excel_row.row_number,
         )
-    
+
     def _get_value(self, values: list[Any], index: int | None) -> Any:
         if index is None:
             return None
-        
+
         if index >= len(values):
             return None
-        
+
         return values[index]
-    
+
     def _get_string_value(self, values: list[Any], index: int | None) -> str:
         value = self._get_value(values, index)
 
         if value is None:
             return ""
-        
+
         return str(value).strip()
-    
+
     def _get_optional_decimal_value(
         self,
         values: list[Any],
@@ -208,22 +202,22 @@ class EstimateParserService:
     ) -> Decimal | None:
         if index is None:
             return None
-        
+
         value = self._get_value(values, index)
 
         if value is None or value == "":
             return None
-        
+
         return self._parse_decimal(value)
-    
+
     def _get_decimal_value(self, values: list[Any], index: int) -> Decimal:
         value = self._get_value(values, index)
 
         if value is None or value == "":
             return Decimal("0")
-        
+
         return self._parse_decimal(value)
-    
+
     def _parse_decimal(self, value: Any) -> Decimal:
         if isinstance(value, int | float | Decimal):
             return Decimal(str(value))

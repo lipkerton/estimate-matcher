@@ -9,9 +9,7 @@ from apps.matching.models import MatchCandidate
 
 class ManualEstimateItemMatchingService:
     def set_product(
-        self,
-        estimate_item: EstimateItem,
-        product: Product
+        self, estimate_item: EstimateItem, product: Product
     ) -> EstimateItem:
         with transaction.atomic():
             estimate_item.product = product

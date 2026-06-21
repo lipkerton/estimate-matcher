@@ -42,7 +42,7 @@ class EstimateViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(project_id=project_id)
 
         return queryset
-    
+
     @extend_schema(
         request=EstimateImportStartSerializer,
         responses={202: EstimateSerializer},
@@ -64,10 +64,8 @@ class EstimateViewSet(viewsets.ModelViewSet):
                 {"detail": str(exc)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        
-        transaction.on_commit(
-            lambda: parse_estimate_task.delay(estimate.import_job_id)
-        )
+
+        transaction.on_commit(lambda: parse_estimate_task.delay(estimate.import_job_id))
 
         estimate = self.get_queryset().get(id=estimate.id)
         response_serializer = self.get_serializer(estimate)

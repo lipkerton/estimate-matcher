@@ -10,8 +10,8 @@ from apps.matching.services.estimate_matching import EstimateMatchingService
 def match_estimate_task(
     estimate_id: int,
     min_confidence: str = "0.6000",
-    auto_match_threshold: str =  "0.8500",
-    max_candidates: int = 3
+    auto_match_threshold: str = "0.8500",
+    max_candidates: int = 3,
 ) -> dict[str, Any]:
     result = EstimateMatchingService(
         min_confidence=Decimal(min_confidence),

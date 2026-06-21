@@ -21,16 +21,12 @@ class EstimateMatchingService:
         self.min_confidence = min_confidence
         self.auto_match_threshold = auto_match_threshold
         self.max_candidates = max_candidates
-    
+
     def match_estimate(self, estimate_id: int) -> EstimateMatchingResult:
         estimate = Estimate.objects.get(id=estimate_id)
 
-        items = list(
-            estimate.items.select_related("product").all()
-        )
-        products = list(
-            Product.objects.select_related("group").all()
-        )
+        items = list(estimate.items.select_related("product").all())
+        products = list(Product.objects.select_related("group").all())
 
         sku_index = self._build_sku_index(products)
 
@@ -69,7 +65,7 @@ class EstimateMatchingService:
                         best_match.confidence if best_match else None
                     )
                     unmatched_items += 1
-                
+
                 item.save(
                     update_fields=[
                         "product",
@@ -77,14 +73,14 @@ class EstimateMatchingService:
                         "matching_confidence",
                     ]
                 )
-        
+
         return EstimateMatchingResult(
             processed_item=processed_items,
             matched_items=matched_items,
             unmatched_items=unmatched_items,
             created_candidates=created_candidates,
         )
-    
+
     def _match_item(
         self,
         item: EstimateItem,
@@ -97,12 +93,12 @@ class EstimateMatchingService:
 
         if exact_match:
             matches.append(exact_match)
-        
+
         fuzzy_matches = self._match_by_name(item, products)
         matches.extend(fuzzy_matches)
 
         return self._deduplicate_and_sort(matches)
-    
+
     def _match_by_sku(
         self,
         item: EstimateItem,
@@ -110,20 +106,20 @@ class EstimateMatchingService:
     ) -> ProductMatch | None:
         if not item.raw_sku:
             return None
-        
+
         normalized_raw_sku = normalize_sku(item.raw_sku)
         product = sku_index.get(normalized_raw_sku)
 
         if not product:
             return None
-        
+
         return ProductMatch(
             product=product,
             confidence=Decimal("1.0000"),
             source=MatchCandidate.Source.EXACT_SKU,
             reason="Exact SKU match",
         )
-    
+
     def _match_by_name(
         self,
         item: EstimateItem,
@@ -133,7 +129,7 @@ class EstimateMatchingService:
 
         if not normalized_item_name:
             return []
-        
+
         matches: list[ProductMatch] = list()
 
         for product in products:
@@ -142,7 +138,7 @@ class EstimateMatchingService:
 
             if not normalized_product_name:
                 continue
-            
+
             score = fuzz.token_set_ratio(
                 normalized_item_name,
                 normalized_product_name,
@@ -161,7 +157,7 @@ class EstimateMatchingService:
                     reason=f"Fuzzy name match: {score}",
                 )
             )
-        
+
         matches.sort(key=lambda match: match.confidence, reverse=True)
 
         return matches[: self.max_candidates]
