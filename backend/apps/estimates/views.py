@@ -6,8 +6,15 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.estimates.models import Estimate, EstimateItem
-from apps.estimates.serializers import EstimateItemSerializer, EstimateSerializer, EstimateImportStartSerializer
+from apps.estimates.serializers import (
+    EstimateImportStartSerializer,
+    EstimateItemSerializer,
+    EstimateMatchStartResponseSerializer,
+    EstimateMatchStartSerializer,
+    EstimateSerializer,
+)
 from apps.estimates.tasks import parse_estimate_task
+from apps.matching.tasks import match_estimate_task
 from apps.estimates.services.estimate_import import EstimateImportStarter
 from apps.imports.exceptions import InvalidColumnMappingError
 
@@ -63,6 +70,32 @@ class EstimateViewSet(viewsets.ModelViewSet):
         response_serializer = self.get_serializer(estimate)
 
         return Response(response_serializer.data, status=status.HTTP_202_ACCEPTED)
+
+    @extend_schema(
+        request=EstimateMatchStartSerializer,
+        responses={202: EstimateMatchStartResponseSerializer},
+    )
+    @action(detail=True, methods=["post"], url_path="match")
+    def match(self, request, pk=None):
+        estimate = self.get_object()
+
+        serializer = EstimateMatchStartSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        task = match_estimate_task.delay(
+            estimate.id,
+            str(serializer.validated_data["min_confidence"]),
+            str(serializer.validated_data["auto_match_threshold"]),
+            serializer.validated_data["max_candidates"],
+        )
+
+        return Response(
+            {
+                "task_id": task.id,
+                "estimate_id": estimate.id,
+            },
+            status=status.HTTP_202_ACCEPTED,
+        )
 
 
 class EstimateItemViewSet(viewsets.ModelViewSet):
