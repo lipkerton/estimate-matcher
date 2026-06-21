@@ -16,6 +16,15 @@ services:
     container_name: estimate_matcher_redis
     ports:
       - "${REDIS_PORT:-6379}:6379"
+  
+  ollama:
+    image: ollama/ollama:latest
+    container_name: estimate_matcher_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
 
 volumes:
   postgres_data:
+  ollama_data:
