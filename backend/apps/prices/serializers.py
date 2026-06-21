@@ -1,6 +1,24 @@
 from rest_framework import serializers
 
 from apps.prices.models import PriceList, SupplierPriceItem
+from apps.imports.models import ImportFile
+from apps.suppliers.models import Supplier
+
+
+class PriceListColumnMappingSerializer(serializers.Serializer):
+    sku = serializers.IntegerField(required=False, min_value=0)
+    name = serializers.IntegerField(min_value=0)
+    unit = serializers.IntegerField(required=False, min_value=0)
+    price = serializers.IntegerField(min_value=0)
+    start_row = serializers.IntegerField(required=False, min_value=0, default=1)
+    sheet_name = serializers.CharField(required=False, allow_blank=True)
+
+
+class PriceListImportStartSerializer(serializers.Serializer):
+    supplier = serializers.PrimaryKeyRelatedField(queryset=Supplier.objects.all())
+    import_file = serializers.PrimaryKeyRelatedField(queryset=ImportFile.objects.all())
+    name = serializers.CharField(required=False, allow_blank=True)
+    column_mapping = PriceListColumnMappingSerializer()
 
 
 class PriceListSerializer(serializers.ModelSerializer):
