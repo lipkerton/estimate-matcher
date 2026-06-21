@@ -1,8 +1,15 @@
+from django.db import transaction
 from django.db.models import Count
-from rest_framework import filters, viewsets
+from drf_spectacular.utils import extend_schema
+from rest_framework import filters, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from apps.estimates.models import Estimate, EstimateItem
-from apps.estimates.serializers import EstimateItemSerializer, EstimateSerializer
+from apps.estimates.serializers import EstimateItemSerializer, EstimateSerializer, EstimateImportStartSerializer
+from apps.estimates.tasks import parse_estimate_task
+from apps.estimates.services.estimate_import import EstimateImportStarter
+from apps.imports.exceptions import InvalidColumnMappingError
 
 
 class EstimateViewSet(viewsets.ModelViewSet):
@@ -25,6 +32,37 @@ class EstimateViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(project_id=project_id)
 
         return queryset
+    
+    @extend_schema(
+        request=EstimateImportStartSerializer,
+        responses={202: EstimateSerializer},
+    )
+    @action(detail=False, methods=["post"], url_path="import")
+    def import_from_file(self, request):
+        serializer = EstimateImportStartSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            estimate = EstimateImportStarter().create_import(
+                project=serializer.validated_data["project"],
+                import_file=serializer.validated_data["import_file"],
+                name=serializer.validated_data["name"],
+                column_mapping=serializer.validated_data["column_mapping"],
+            )
+        except InvalidColumnMappingError as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        
+        transaction.on_commit(
+            lambda: parse_estimate_task.delay(estimate.import_job_id)
+        )
+
+        estimate = self.get_queryset().get(id=estimate.id)
+        response_serializer = self.get_serializer(estimate)
+
+        return Response(response_serializer.data, status=status.HTTP_202_ACCEPTED)
 
 
 class EstimateItemViewSet(viewsets.ModelViewSet):
