@@ -5,6 +5,36 @@ from apps.imports.models import ImportFile
 from apps.projects.models import Project
 
 
+class EstimateMatchStartSerializer(serializers.Serializer):
+    min_confidence = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=4,
+        required=False,
+        min_value=0,
+        max_value=1,
+        default="0.6000",
+    )
+    auto_match_threshold = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=4,
+        required=False,
+        min_value=0,
+        max_value=1,
+        default="0.8500",
+    )
+    max_candidates = serializers.IntegerField(
+        required=False,
+        min_value=1,
+        max_value=10,
+        default=3,
+    )
+
+
+class EstimateMatchStartResponseSerializer(serializers.Serializer):
+    task_id = serializers.CharField()
+    estimate_id = serializers.IntegerField()
+
+
 class EstimateColumnMappingSerializer(serializers.Serializer):
     sku = serializers.IntegerField(required=False, min_value=0)
     name = serializers.IntegerField(min_value=0)
