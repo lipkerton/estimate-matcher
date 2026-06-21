@@ -25,6 +25,12 @@ class AppSettings(BaseSettings):
 
     CORS_ALLOWED_ORIGINS: str = Field(default="http://localhost:5173")
 
+    LLM_ENABLED: bool = Field(default=False)
+    LLM_PROVIDER: str = Field(default="ollama")
+    LLM_BASE_URL: str = Field(default="http://localhost:11434")
+    LLM_MODEL: str = Field(default="deepseek-r1:1.5b")
+    LLM_TIMEOUT_SECONDS: int = Field(default=120)
+
     @property
     def allowed_hosts_list(self) -> list[str]:
         return [host.strip() for host in self.DJANGO_ALLOWED_HOSTS.split(",") if host]
