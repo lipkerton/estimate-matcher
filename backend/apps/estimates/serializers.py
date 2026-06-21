@@ -1,6 +1,26 @@
 from rest_framework import serializers
 
 from apps.estimates.models import Estimate, EstimateItem
+from apps.imports.models import ImportFile
+from apps.projects.models import Project
+
+
+class EstimateColumnMappingSerializer(serializers.Serializer):
+    sku = serializers.IntegerField(required=False, min_value=0)
+    name = serializers.IntegerField(min_value=0)
+    unit = serializers.IntegerField(required=False, min_value=0)
+    quantity = serializers.IntegerField(min_value=0)
+    material_price = serializers.IntegerField(required=False, min_value=0)
+    installation_price = serializers.IntegerField(required=False, min_value=0)
+    start_row = serializers.IntegerField(required=False, min_value=0, default=1)
+    sheet_name = serializers.CharField(required=False, allow_blank=True)
+
+
+class EstimateImportStartSerializer(serializers.Serializer):
+    project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all())
+    import_file = serializers.PrimaryKeyRelatedField(queryset=ImportFile.objects.all())
+    name = serializers.CharField(max_length=255)
+    column_mapping = EstimateColumnMappingSerializer()
 
 
 class EstimateSerializer(serializers.ModelSerializer):
