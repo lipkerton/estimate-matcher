@@ -162,6 +162,10 @@ class EstimateParserService:
             values,
             mapping.get("installation_price"),
         )
+        installation_price = self._get_optional_decimal_value(
+            values,
+            mapping.get("installation_price"),
+        )
 
         raw_row = {
             str(index): value

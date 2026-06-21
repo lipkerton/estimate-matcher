@@ -1,5 +1,5 @@
+from collections.abc import Iterable
 from decimal import Decimal
-from typing import Iterable
 
 from django.db import transaction
 from rapidfuzz import fuzz

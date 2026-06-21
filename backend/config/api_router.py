@@ -3,11 +3,10 @@ from rest_framework.routers import DefaultRouter
 from apps.catalog.views import ProductGroupViewSet, ProductViewSet
 from apps.estimates.views import EstimateItemViewSet, EstimateViewSet
 from apps.imports.views import ImportFileViewSet, ImportJobViewSet
+from apps.matching.views import MatchCandidateViewSet
 from apps.prices.views import SupplierPriceItemViewSet
 from apps.projects.views import ProjectViewSet
 from apps.suppliers.views import SupplierViewSet
-from apps.matching.views import MatchCandidateViewSet
-
 
 router = DefaultRouter()
 

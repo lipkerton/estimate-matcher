@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
+from apps.catalog.models import Product
 from apps.estimates.models import Estimate, EstimateItem
 from apps.imports.models import ImportFile
 from apps.projects.models import Project
-from apps.catalog.models import Product
 
 
 class EstimateItemSetProductSerializer(serializers.Serializer):

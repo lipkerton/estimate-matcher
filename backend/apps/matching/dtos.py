@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from apps.catalog.models import Product
-from apps.matching.models import MatchCandidate
 
 
 @dataclass(frozen=True)
