@@ -6,6 +6,28 @@ from apps.imports.models import ImportFile
 from apps.projects.models import Project
 
 
+class EstimateLLMRerankStartSerializer(serializers.Serializer):
+    auto_match_threshold = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=4,
+        required=False,
+        min_value=0,
+        max_value=1,
+        default="0.8500",
+    )
+    max_candidates = serializers.IntegerField(
+        required=False,
+        min_value=1,
+        max_value=10,
+        default=5,
+    )
+
+
+class EstimateLLMRerankStartResponseSerializer(serializers.Serializer):
+    task_id = serializers.CharField()
+    estimate_id = serializers.IntegerField()
+
+
 class EstimateItemSetProductSerializer(serializers.Serializer):
     product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
 

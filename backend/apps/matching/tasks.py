@@ -4,6 +4,7 @@ from typing import Any
 from celery import shared_task
 
 from apps.matching.services.estimate_matching import EstimateMatchingService
+from apps.matching.services.llm_reranker import LLMRerankerService
 
 
 @shared_task
@@ -25,3 +26,15 @@ def match_estimate_task(
         "unmatched_items": result.unmatched_items,
         "created_candidates": result.created_candidates,
     }
+
+
+@shared_task
+def rerank_estimate_with_llm_task(
+    estimate_id: int,
+    auto_match_threshold: str = "0.8500",
+    max_candidates: int = 5,
+) -> dict[str, int]:
+    return LLMRerankerService(
+        auto_match_threshold=Decimal(auto_match_threshold),
+        max_candidates=max_candidates,
+    ).rerank_estimate(estimate_id)
