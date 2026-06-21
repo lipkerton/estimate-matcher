@@ -3,6 +3,24 @@ from rest_framework import serializers
 from apps.estimates.models import Estimate, EstimateItem
 from apps.imports.models import ImportFile
 from apps.projects.models import Project
+from apps.catalog.models import Product
+
+
+class EstimateItemSetProductSerializer(serializers.Serializer):
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+
+
+class EstimateItemActionResponseSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    product = serializers.IntegerField(allow_null=True)
+    product_name = serializers.CharField(allow_null=True)
+    product_sku = serializers.CharField(allow_null=True)
+    matching_status = serializers.CharField()
+    matching_confidence = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=4,
+        allow_null=True,
+    )
 
 
 class EstimateMatchStartSerializer(serializers.Serializer):
