@@ -31,11 +31,9 @@ class PriceListImportStarter:
                 column_mapping=column_mapping,
             )
             return PriceList.objects.create(
-                supplier=supplier,
-                import_job=import_job,
-                name=name
+                supplier=supplier, import_job=import_job, name=name
             )
-        
+
         def _validate_mapping(self, mapping: dict[str, Any]) -> None:
             required_fields = ("name", "price")
 
@@ -44,20 +42,20 @@ class PriceListImportStarter:
                     raise InvalidColumnMappingError(
                         f"Column mapping must contain '{field}'."
                     )
-            
+
             index_fields = ("sku", "name", "unit", "price", "start_row")
 
             for field in index_fields:
                 if field not in mapping:
                     continue
-                
+
                 value = mapping[field]
 
                 if not isinstance(value, int):
                     raise InvalidColumnMappingError(
                         f"Column mapping field '{field}' must be integer."
                     )
-                
+
                 if value < 0:
                     raise InvalidColumnMappingError(
                         f"Column mapping field '{field}' cannot be negative."
@@ -69,7 +67,7 @@ class PriceListParserService:
 
     def __init__(self, row_reader: ExcelRowReader | None = None) -> None:
         self.row_reader = row_reader or ExcelRowReader()
-    
+
     def parse(self, import_job_id: int) -> dict[str, int]:
         import_job = ImportJob.objects.select_related("import_file").get(
             id=import_job_id,
@@ -149,10 +147,7 @@ class PriceListParserService:
         unit = self._get_string_value(values, mapping.get("unit"))
         price = self._get_decimal_value(values, mapping["price"])
 
-        raw_row = {
-            str(index): value
-            for index, value in enumerate(values)
-        }
+        raw_row = {str(index): value for index, value in enumerate(values)}
 
         return SupplierPriceItem(
             price_list=price_list,

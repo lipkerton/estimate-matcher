@@ -36,7 +36,7 @@ class PriceListViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(supplier_id=supplier_id)
 
         return queryset
-    
+
     @extend_schema(
         request=PriceListImportStartSerializer,
         responses={202: PriceListSerializer},
@@ -58,7 +58,7 @@ class PriceListViewSet(viewsets.ModelViewSet):
                 {"detail": str(exc)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        
+
         transaction.on_commit(
             lambda: parse_price_list_task.delay(price_list.import_job_id)
         )

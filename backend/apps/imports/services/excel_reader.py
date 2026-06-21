@@ -134,8 +134,7 @@ class ExcelRowReader:
             yield ExcelRow(
                 row_number=row_index + 1,
                 values=[
-                    self._normalize_cell(value)
-                    for value in sheet.row_values(row_index)
+                    self._normalize_cell(value) for value in sheet.row_values(row_index)
                 ],
             )
 
