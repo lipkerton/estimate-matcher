@@ -11,6 +11,8 @@ from apps.estimates.serializers import (
     EstimateItemActionResponseSerializer,
     EstimateItemSerializer,
     EstimateItemSetProductSerializer,
+    EstimateLLMRerankStartResponseSerializer,
+    EstimateLLMRerankStartSerializer,
     EstimateMatchStartResponseSerializer,
     EstimateMatchStartSerializer,
     EstimateSerializer,
@@ -19,7 +21,7 @@ from apps.estimates.services.estimate_import import EstimateImportStarter
 from apps.estimates.tasks import parse_estimate_task
 from apps.imports.exceptions import InvalidColumnMappingError
 from apps.matching.services.manual_matching import ManualEstimateItemMatchingService
-from apps.matching.tasks import match_estimate_task
+from apps.matching.tasks import match_estimate_task, rerank_estimate_with_llm_task
 
 
 class EstimateViewSet(viewsets.ModelViewSet):
@@ -71,6 +73,31 @@ class EstimateViewSet(viewsets.ModelViewSet):
         response_serializer = self.get_serializer(estimate)
 
         return Response(response_serializer.data, status=status.HTTP_202_ACCEPTED)
+
+    @extend_schema(
+        request=EstimateLLMRerankStartSerializer,
+        responses={202: EstimateLLMRerankStartResponseSerializer},
+    )
+    @action(detail=True, methods=["post"], url_path="llm-rerank")
+    def llm_rerank(self, request, pk=None):
+        estimate = self.get_object()
+
+        serializer = EstimateLLMRerankStartSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        task = rerank_estimate_with_llm_task.delay(
+            estimate.id,
+            str(serializer.validated_data["auto_match_threshold"]),
+            serializer.validated_data["max_candidates"],
+        )
+
+        return Response(
+            {
+                "task_id": task.id,
+                "estimate_id": estimate.id,
+            },
+            status=status.HTTP_202_ACCEPTED,
+        )
 
     @extend_schema(
         request=EstimateMatchStartSerializer,
