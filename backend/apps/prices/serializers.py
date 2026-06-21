@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from apps.prices.models import PriceList, SupplierPriceItem
 from apps.imports.models import ImportFile
+from apps.prices.models import PriceList, SupplierPriceItem
 from apps.suppliers.models import Supplier
 
 

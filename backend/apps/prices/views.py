@@ -7,9 +7,11 @@ from rest_framework.response import Response
 
 from apps.imports.exceptions import InvalidColumnMappingError
 from apps.prices.models import PriceList, SupplierPriceItem
-from apps.prices.serializers import (PriceListImportStartSerializer,
-                                     PriceListSerializer,
-                                     SupplierPriceItemSerializer)
+from apps.prices.serializers import (
+    PriceListImportStartSerializer,
+    PriceListSerializer,
+    SupplierPriceItemSerializer,
+)
 from apps.prices.services.price_list_import import PriceListImportStarter
 from apps.prices.tasks import parse_price_list_task
 

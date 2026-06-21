@@ -133,7 +133,10 @@ class ExcelRowReader:
         for row_index in range(start_row, sheet.nrows):
             yield ExcelRow(
                 row_number=row_index + 1,
-                values=[self._normalize_cell(value) for value in sheet.row_values(row_index)],
+                values=[
+                    self._normalize_cell(value)
+                    for value in sheet.row_values(row_index)
+                ],
             )
 
     def _get_xls_sheet(self, workbook, sheet_name: str | None):
