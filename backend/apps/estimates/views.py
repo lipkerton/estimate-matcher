@@ -8,7 +8,9 @@ from rest_framework.response import Response
 from apps.estimates.models import Estimate, EstimateItem
 from apps.estimates.serializers import (
     EstimateImportStartSerializer,
+    EstimateItemActionResponseSerializer,
     EstimateItemSerializer,
+    EstimateItemSetProductSerializer,
     EstimateMatchStartResponseSerializer,
     EstimateMatchStartSerializer,
     EstimateSerializer,
@@ -16,6 +18,7 @@ from apps.estimates.serializers import (
 from apps.estimates.tasks import parse_estimate_task
 from apps.matching.tasks import match_estimate_task
 from apps.estimates.services.estimate_import import EstimateImportStarter
+from apps.matching.services.manual_matching import ManualEstimateItemMatchingService
 from apps.imports.exceptions import InvalidColumnMappingError
 
 
@@ -129,3 +132,70 @@ class EstimateItemViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(matching_status=matching_status)
 
         return queryset
+
+    @extend_schema(
+        request=EstimateItemSetProductSerializer,
+        responses={200: EstimateItemActionResponseSerializer},
+    )
+    @action(detail=True, methods=["post"], url_path="set-product")
+    def set_product(self, request, pk=None):
+        estimate_item = self.get_object()
+
+        serializer = EstimateItemSetProductSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        estimate_item = ManualEstimateItemMatchingService().set_product(
+            estimate_item=estimate_item,
+            product=serializer.validated_data["product"],
+        )
+
+        return Response(
+            self._build_action_response(estimate_item),
+            status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        request=None,
+        responses={200: EstimateItemActionResponseSerializer},
+    )
+    @action(detail=True, methods=["post"], url_path="mark-no-match")
+    def mark_no_match(self, request, pk=None):
+        estimate_item = self.get_object()
+
+        estimate_item = ManualEstimateItemMatchingService().mark_no_match(
+            estimate_item=estimate_item,
+        )
+
+        return Response(
+            self._build_action_response(estimate_item),
+            status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        request=None,
+        responses={200: EstimateItemActionResponseSerializer},
+    )
+    @action(detail=True, methods=["post"], url_path="reset-match")
+    def reset_match(self, request, pk=None):
+        estimate_item = self.get_object()
+
+        estimate_item = ManualEstimateItemMatchingService().reset_match(
+            estimate_item=estimate_item,
+        )
+
+        return Response(
+            self._build_action_response(estimate_item),
+            status=status.HTTP_200_OK,
+        )
+
+    def _build_action_response(self, estimate_item):
+        product = estimate_item.product
+
+        return {
+            "id": estimate_item.id,
+            "product": product.id if product else None,
+            "product_name": product.name if product else None,
+            "product_sku": product.sku if product else None,
+            "matching_status": estimate_item.matching_status,
+            "matching_confidence": estimate_item.matching_confidence,
+        }
