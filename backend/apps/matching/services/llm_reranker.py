@@ -12,6 +12,7 @@ from apps.matching.dtos import (
 from apps.matching.models import MatchCandidate
 from apps.matching.services.llm_client_factory import build_default_llm_client
 from apps.matching.services.llm_clients import LLMClientProtocol
+from apps.matching.exceptions import LLMRerankError
 
 
 class LLMRerankerService:
@@ -72,7 +73,16 @@ class LLMRerankerService:
             return None
 
         request = self._build_request(item, candidates)
-        result = self.llm_client.rerank_match_candidates(request)
+
+        try:
+            result = self.llm_client.rerank_match_candidates(request)
+        except LLMRerankError as exc:
+            result = LLMRerankResult(
+                decision="no_match",
+                product_id=None,
+                confidence=Decimal("0.0000"),
+                reason=f"LLM rerank failed: {exc}",
+            )
 
         self._apply_result(item, result)
 
