@@ -8,7 +8,6 @@ from apps.prices.views import PriceListViewSet, SupplierPriceItemViewSet
 from apps.projects.views import ProjectViewSet
 from apps.suppliers.views import SupplierViewSet
 
-
 router = DefaultRouter()
 
 router.register("suppliers", SupplierViewSet, basename="supplier")

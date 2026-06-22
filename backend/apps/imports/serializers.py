@@ -1,9 +1,8 @@
 from pathlib import Path
+
 from rest_framework import serializers
 
 from apps.imports.models import ImportFile, ImportJob
-
-
 
 
 class ImportFileUploadSerializer(serializers.Serializer):

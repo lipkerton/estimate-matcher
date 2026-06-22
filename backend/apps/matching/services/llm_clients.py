@@ -1,4 +1,3 @@
-import asyncio
 import json
 import re
 from decimal import Decimal, InvalidOperation
@@ -23,6 +22,7 @@ class FakeLLMClient:
     """
     Для докальной разработки без модели.
     """
+
     MIN_ACCEPTABLE_CONFIDENCE = Decimal("0.7000")
 
     def rerank_match_candidates(
@@ -36,7 +36,7 @@ class FakeLLMClient:
                 confidence=Decimal("0.0000"),
                 reason="No candidates were provided.",
             )
-        
+
         best_candidate = max(
             request.candidates,
             key=lambda candidate: candidate.confidence,
@@ -51,7 +51,7 @@ class FakeLLMClient:
                     "Best candidate confidence is below fake LLM acceptance threshold."
                 ),
             )
-        
+
         adjusted_confidence = min(
             best_candidate.confidence + Decimal("0.0500"),
             Decimal("1.0000"),
@@ -65,7 +65,7 @@ class FakeLLMClient:
                 "Fake LLM selected the best deterministic candidate."
                 f"Original source: {best_candidate.source}. "
                 f"Original reason: {best_candidate.reason}"
-            )
+            ),
         )
 
 
@@ -79,7 +79,7 @@ class OllamaAsyncLLMClient:
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.timeout_seconds = timeout_seconds
-    
+
     async def rerank_match_candidates(
         self,
         request: LLMRerankRequest,
@@ -104,13 +104,13 @@ class OllamaAsyncLLMClient:
                 response.raise_for_status()
         except httpx.HTTPError as exc:
             raise LLMRerankError(f"Ollama HTTP request failed: {exc}") from exc
-        
+
         try:
             response_data = response.json()
             content = response_data["message"]["content"]
         except (KeyError, TypeError, json.JSONDecodeError) as exc:
-            raise LLMRerankError(f"Invalid Ollama response format.") from exc
-        
+            raise LLMRerankError("Invalid Ollama response format.") from exc
+
         parsed = self._parse_json_content(content)
         result = self._build_result(parsed)
         self._validate_result(result, request)
@@ -180,10 +180,7 @@ class OllamaAsyncLLMClient:
         if result.confidence < Decimal("0") or result.confidence > Decimal("1"):
             raise LLMRerankError("LLM confidence must be between 0 and 1.")
 
-        allowed_product_ids = {
-            candidate.product_id
-            for candidate in request.candidates
-        }
+        allowed_product_ids = {candidate.product_id for candidate in request.candidates}
 
         if result.decision == "match":
             if result.product_id is None:
