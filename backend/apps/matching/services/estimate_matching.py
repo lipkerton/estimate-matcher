@@ -15,7 +15,7 @@ class EstimateMatchingService:
     def __init__(
         self,
         min_confidence: Decimal = Decimal("0.6000"),
-        auto_match_threshold: Decimal = Decimal("0.500"),
+        auto_match_threshold: Decimal = Decimal("0.8500"),
         max_candidates: int = 3,
     ) -> None:
         self.min_confidence = min_confidence
@@ -75,7 +75,7 @@ class EstimateMatchingService:
                 )
 
         return EstimateMatchingResult(
-            processed_item=processed_items,
+            processed_items=processed_items,
             matched_items=matched_items,
             unmatched_items=unmatched_items,
             created_candidates=created_candidates,

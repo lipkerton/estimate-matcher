@@ -42,7 +42,7 @@ class ProductMatch:
 
 @dataclass(frozen=True)
 class EstimateMatchingResult:
-    processed_item: int
+    processed_items: int
     matched_items: int
     unmatched_items: int
     created_candidates: int

@@ -157,7 +157,7 @@ class EstimateParserService:
 
         material_price = self._get_optional_decimal_value(
             values,
-            mapping.get("installation_price"),
+            mapping.get("material_price"),
         )
         installation_price = self._get_optional_decimal_value(
             values,
