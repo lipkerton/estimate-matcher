@@ -10,7 +10,8 @@ from apps.matching.dtos import (
     LLMRerankResult,
 )
 from apps.matching.models import MatchCandidate
-from apps.matching.services.llm_clients import FakeLLMClient, LLMClientProtocol
+from apps.matching.services.llm_client_factory import build_default_llm_client
+from apps.matching.services.llm_clients import LLMClientProtocol
 
 
 class LLMRerankerService:
@@ -20,7 +21,7 @@ class LLMRerankerService:
         auto_match_threshold: Decimal = Decimal("0.8500"),
         max_candidates: int = 5,
     ) -> None:
-        self.llm_client = llm_client or FakeLLMClient()
+        self.llm_client = llm_client or build_default_llm_client()
         self.auto_match_threshold = auto_match_threshold
         self.max_candidates = max_candidates
 
