@@ -1,5 +1,6 @@
 import json
 import re
+import asyncio
 from decimal import Decimal, InvalidOperation
 from typing import Any, Protocol
 
@@ -16,6 +17,38 @@ class LLMClientProtocol(Protocol):
         request: LLMRerankRequest,
     ) -> LLMRerankResult:
         raise NotImplementedError
+
+
+class AsyncLLMClientProtocol(Protocol):
+    async def rerank_match_candidates(
+        self,
+        request: LLMRerankRequest,
+    ) -> LLMRerankResult:
+        raise NotImplementedError
+
+
+class SyncLLMClientAdapter:
+    """
+    Adapter that allows using an async LLM client from sync services/Celery tasks.
+    """
+
+    def __init__(self, async_client: AsyncLLMClientProtocol) -> None:
+        self.async_client = async_client
+
+    def rerank_match_candidates(
+        self,
+        request: LLMRerankRequest,
+    ) -> LLMRerankResult:
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(
+                self.async_client.rerank_match_candidates(request),
+            )
+
+        raise LLMRerankError(
+            "Cannot use SyncLLMClientAdapter inside a running event loop."
+        )
 
 
 class FakeLLMClient:
