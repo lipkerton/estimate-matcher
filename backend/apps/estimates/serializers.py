@@ -90,6 +90,7 @@ class EstimateImportStartSerializer(serializers.Serializer):
     project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all())
     import_file = serializers.PrimaryKeyRelatedField(queryset=ImportFile.objects.all())
     name = serializers.CharField(max_length=255)
+    column_mapping = EstimateColumnMappingSerializer()
 
 
 class EstimateSerializer(serializers.ModelSerializer):
