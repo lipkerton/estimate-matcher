@@ -51,6 +51,48 @@ class ImportFileViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
+    @extend_schema(
+        parameters=[ExcelPreviewQuerySerializer],
+        responses={
+            200: ExcelPreviewResponseSerializer,
+            400: OpenApiResponse(description="Cannot read Excel preview."),
+        },
+    )
+    @action(detail=True, methods=["get"], url_path="preview")
+    def preview(self, request, pk=None):
+        import_file = self.get_object()
+
+        query_serializer = ExcelPreviewQuerySerializer(data=request.query_params)
+        query_serializer.is_valid(raise_exception=True)
+
+        sheet_name = query_serializer.validated_data.get("sheet_name") or None
+        limit = query_serializer.validated_data.get("limit", 20)
+
+        service = ExcelPreviewService()
+
+        try:
+            preview = service.get_preview(
+                file_path=import_file.file.path,
+                sheet_name=sheet_name,
+                limit=limit,
+            )
+        except ExcelPreviewError as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        data = {
+            "import_file_id": import_file.id,
+            "original_filename": import_file.original_filename,
+            "sheet_name": preview.sheet_name,
+            "sheet_names": preview.sheet_names,
+            "rows": preview.rows,
+        }
+
+        response_serializer = ExcelPreviewResponseSerializer(data)
+        return Response(response_serializer.data)
+
 
 class ImportJobViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ImportJob.objects.select_related("import_file")

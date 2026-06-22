@@ -102,6 +102,7 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Estimate Matcher API",
     "DESCRIPTION": "API for suppliers, price lists, estimates and product matching.",
     "VERSION": "0.1.0",
+    "COMPONENT_SPLIT_REQUEST": True,
 }
 
 LLM_ENABLED = settings.LLM_ENABLED
