@@ -23,11 +23,11 @@ class PriceListImportStartSerializer(serializers.Serializer):
 
 class PriceListSerializer(serializers.ModelSerializer):
     supplier_name = serializers.CharField(source="supplier.name", read_only=True)
-    item_count = serializers.IntegerField(read_only=True)
+    items_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = PriceList
-        field = (
+        fields = (
             "id",
             "supplier",
             "supplier_name",
