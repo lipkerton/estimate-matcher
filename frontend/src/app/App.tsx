@@ -9,6 +9,11 @@ export function App() {
         <nav className="nav">
           <NavLink to="/suppliers">Поставщики</NavLink>
         </nav>
+        <nav className="nav">
+          <NavLink to="/suppliers">Поставщики</NavLink>
+          <NavLink to="/products">Каталог товаров</NavLink>
+        </nav>
+
       </aside>
 
       <main className="main-content">

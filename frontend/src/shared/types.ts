@@ -19,3 +19,22 @@ export type SupplierCreatePayload = {
   inn: string;
   currency: "RUB" | "USD" | "EUR" | "CNY";
 };
+
+export type Product = {
+  id: number;
+  sku: string;
+  name: string;
+  unit: string;
+  group: number | null;
+  normalized_name: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProductCreatePayload = {
+  sku: string;
+  name: string;
+  unit: string;
+  group: number | null;
+  normalized_name?: string;
+};
