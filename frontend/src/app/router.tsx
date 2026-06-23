@@ -3,6 +3,7 @@ import { App } from "./App";
 import { SuppliersPage } from "../pages/SuppliersPage";
 import { ProductsPage } from "../pages/ProductsPage";
 import { ProjectsPage } from "../pages/ProjectsPage";
+import { ImportFilesPage } from "../pages/ImportFilesPage";
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ export const router = createBrowserRouter([
       {
         path: "projects",
         element: <ProjectsPage />,
+      },
+      {
+        path: "import-files",
+        element: <ImportFilesPage />,
       },
     ],
   },

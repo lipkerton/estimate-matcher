@@ -13,6 +13,7 @@ export function App() {
           <NavLink to="/suppliers">Поставщики</NavLink>
           <NavLink to="/products">Каталог товаров</NavLink>
           <NavLink to="/projects">Проекты</NavLink>
+          <NavLink to="/import-files">Файлы импорта</NavLink>
         </nav>
 
       </aside>

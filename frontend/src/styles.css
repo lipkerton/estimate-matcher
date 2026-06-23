@@ -160,3 +160,23 @@ th {
 .error-text {
   color: #dc2626;
 }
+
+.upload-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.muted-text {
+  color: #6b7280;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.table-scroll table {
+  min-width: 800px;
+}
+

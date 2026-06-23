@@ -51,3 +51,18 @@ export type ProjectCreatePayload = {
   name: string;
   description: string;
 };
+
+export type ImportFile = {
+  id: number;
+  original_filename: string;
+  file: string;
+  created_at: string;
+};
+
+export type ExcelPreview = {
+  import_file_id: number;
+  original_filename: string;
+  sheet_name: string;
+  sheet_names: string[];
+  rows: unknown[][];
+};
