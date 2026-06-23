@@ -202,3 +202,14 @@ th {
   border-radius: 8px;
   margin-bottom: 24px;
 }
+
+.estimate-import-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  align-items: end;
+}
+
+.estimate-mapping-grid {
+  grid-template-columns: repeat(7, 1fr);
+}

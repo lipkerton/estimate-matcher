@@ -106,3 +106,56 @@ export type PriceListImportPayload = {
   name: string;
   column_mapping: PriceListColumnMapping;
 };
+
+export type Estimate = {
+  id: number;
+  project: number;
+  project_name: string;
+  name: string;
+  import_job: number | null;
+  items_count: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type EstimateItem = {
+  id: number;
+  estimate: number;
+  raw_sku: string;
+  raw_name: string;
+  unit: string;
+  quantity: string;
+  material_price: string | null;
+  installation_price: string | null;
+  product: number | null;
+  product_name: string | null;
+  product_sku: string | null;
+  matching_status:
+    | "not_processed"
+    | "matched"
+    | "unmatched"
+    | "no_match"
+    | "manual";
+  matching_confidence: string | null;
+  raw_row: Record<string, unknown>;
+  row_number: number | null;
+  created_at: string;
+};
+
+export type EstimateColumnMapping = {
+  sku?: number;
+  name: number;
+  unit?: number;
+  quantity: number;
+  material_price?: number;
+  installation_price?: number;
+  start_row: number;
+  sheet_name?: string;
+};
+
+export type EstimateImportPayload = {
+  project: number;
+  import_file: number;
+  name: string;
+  column_mapping: EstimateColumnMapping;
+};

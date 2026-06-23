@@ -5,6 +5,7 @@ import { ProductsPage } from "../pages/ProductsPage";
 import { ProjectsPage } from "../pages/ProjectsPage";
 import { ImportFilesPage } from "../pages/ImportFilesPage";
 import { PriceListsPage } from "../pages/PriceListsPage";
+import { EstimatesPage } from "../pages/EstimatesPage";
 
 export const router = createBrowserRouter([
   {
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
       {
         path: "price-lists",
         element: <PriceListsPage />,
+      },
+      {
+        path: "estimates",
+        element: <EstimatesPage />,
       },
     ],
   },

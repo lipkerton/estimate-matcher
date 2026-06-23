@@ -15,6 +15,7 @@ export function App() {
           <NavLink to="/projects">Проекты</NavLink>
           <NavLink to="/import-files">Файлы импорта</NavLink>
           <NavLink to="/price-lists">Прайс-листы</NavLink>
+          <NavLink to="/estimates">Сметы</NavLink>
         </nav>
 
       </aside>
