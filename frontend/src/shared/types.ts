@@ -159,3 +159,32 @@ export type EstimateImportPayload = {
   name: string;
   column_mapping: EstimateColumnMapping;
 };
+
+export type MatchCandidate = {
+  id: number;
+  estimate_item: number;
+  estimate_item_name: string;
+  product: number;
+  product_name: string;
+  product_sku: string;
+  confidence: string;
+  source: "exact_sku" | "fuzzy_name" | "ai" | "manual";
+  reason: string;
+  created_at: string;
+};
+
+export type EstimateMatchPayload = {
+  min_confidence: string;
+  auto_match_threshold: string;
+  max_candidates: number;
+};
+
+export type EstimateLLMRerankPayload = {
+  auto_match_threshold: string;
+  max_candidates: number;
+};
+
+export type AsyncTaskStartResponse = {
+  task_id: string;
+  estimate_id: number;
+};

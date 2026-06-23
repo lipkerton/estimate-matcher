@@ -1,8 +1,11 @@
 import { apiClient } from "./client";
 import type {
+  AsyncTaskStartResponse,
   Estimate,
   EstimateImportPayload,
   EstimateItem,
+  EstimateLLMRerankPayload,
+  EstimateMatchPayload,
   PaginatedResponse,
 } from "../shared/types";
 
@@ -34,6 +37,30 @@ export async function getEstimateItems(
         estimate: estimateId,
       },
     },
+  );
+
+  return response.data;
+}
+
+export async function runEstimateMatch(
+  estimateId: number,
+  payload: EstimateMatchPayload,
+): Promise<AsyncTaskStartResponse> {
+  const response = await apiClient.post<AsyncTaskStartResponse>(
+    `/estimates/${estimateId}/match/`,
+    payload,
+  );
+
+  return response.data;
+}
+
+export async function runEstimateLLMRerank(
+  estimateId: number,
+  payload: EstimateLLMRerankPayload,
+): Promise<AsyncTaskStartResponse> {
+  const response = await apiClient.post<AsyncTaskStartResponse>(
+    `/estimates/${estimateId}/llm-rerank/`,
+    payload,
   );
 
   return response.data;

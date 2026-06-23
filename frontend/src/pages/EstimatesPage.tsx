@@ -6,10 +6,18 @@ import {
   getEstimateItems,
   getEstimates,
   importEstimate,
+  runEstimateLLMRerank,
+  runEstimateMatch,
 } from "../api/estimates";
 import { getImportFiles } from "../api/importFiles";
 import { getProjects } from "../api/projects";
-import type { EstimateImportPayload, EstimateItem } from "../shared/types";
+import type {
+  EstimateImportPayload,
+  EstimateItem,
+  MatchCandidate,
+} from "../shared/types";
+import { getMatchCandidatesByEstimate } from "../api/matching";
+
 
 type EstimateImportForm = {
   project: string;
@@ -65,6 +73,12 @@ export function EstimatesPage() {
     enabled: selectedEstimateId !== null,
   });
 
+  const matchCandidatesQuery = useQuery({
+    queryKey: ["match-candidates", selectedEstimateId],
+    queryFn: () => getMatchCandidatesByEstimate(selectedEstimateId!),
+    enabled: selectedEstimateId !== null,
+  });
+
   const importMutation = useMutation({
     mutationFn: importEstimate,
     onSuccess: () => {
@@ -75,6 +89,33 @@ export function EstimatesPage() {
         ...current,
         name: "",
       }));
+    },
+  });
+
+  const matchMutation = useMutation({
+    mutationFn: (estimateId: number) =>
+      runEstimateMatch(estimateId, {
+        min_confidence: "0.6000",
+        auto_match_threshold: "0.8500",
+        max_candidates: 5,
+      }),
+    onSuccess: (_, estimateId) => {
+      queryClient.invalidateQueries({ queryKey: ["estimates"] });
+      queryClient.invalidateQueries({ queryKey: ["estimate-items", estimateId] });
+      queryClient.invalidateQueries({ queryKey: ["match-candidates", estimateId] });
+    },
+  });
+
+  const llmRerankMutation = useMutation({
+    mutationFn: (estimateId: number) =>
+      runEstimateLLMRerank(estimateId, {
+        auto_match_threshold: "0.8500",
+        max_candidates: 5,
+      }),
+    onSuccess: (_, estimateId) => {
+      queryClient.invalidateQueries({ queryKey: ["estimates"] });
+      queryClient.invalidateQueries({ queryKey: ["estimate-items", estimateId] });
+      queryClient.invalidateQueries({ queryKey: ["match-candidates", estimateId] });
     },
   });
 
@@ -302,6 +343,31 @@ export function EstimatesPage() {
         </div>
       )}
 
+      {matchMutation.isSuccess && (
+        <div className="success-box">
+          Matching запущен. Если статусы сразу не обновились, подожди пару секунд
+          и снова открой позиции сметы.
+        </div>
+      )}
+
+      {matchMutation.isError && (
+        <div className="error-box">
+          Не удалось запустить deterministic matching.
+        </div>
+      )}
+
+      {llmRerankMutation.isSuccess && (
+        <div className="success-box">
+          LLM rerank запущен. Проверь, что Ollama и Celery worker запущены.
+        </div>
+      )}
+
+      {llmRerankMutation.isError && (
+        <div className="error-box">
+          Не удалось запустить LLM rerank.
+        </div>
+      )}
+
       <div className="card">
         <h3>Список смет</h3>
 
@@ -332,12 +398,30 @@ export function EstimatesPage() {
                   <td>{estimate.items_count}</td>
                   <td>{new Date(estimate.created_at).toLocaleString()}</td>
                   <td>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedEstimateId(estimate.id)}
-                    >
-                      Позиции
-                    </button>
+                    <div className="row-actions">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedEstimateId(estimate.id)}
+                        >
+                        Позиции
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => matchMutation.mutate(estimate.id)}
+                          disabled={matchMutation.isPending}
+                        >
+                        Match
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => llmRerankMutation.mutate(estimate.id)}
+                          disabled={llmRerankMutation.isPending}
+                        >
+                        LLM rerank
+                        </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -358,6 +442,23 @@ export function EstimatesPage() {
 
           {estimateItemsQuery.data && (
             <EstimateItemsTable items={estimateItemsQuery.data.results} />
+          )}
+        </div>
+      )}
+      {selectedEstimateId && (
+        <div className="card">
+          <h3>Кандидаты matching для сметы #{selectedEstimateId}</h3>
+
+          {matchCandidatesQuery.isLoading && <p>Загрузка...</p>}
+
+          {matchCandidatesQuery.isError && (
+            <p className="error-text">Не удалось загрузить candidates.</p>
+          )}
+
+          {matchCandidatesQuery.data && (
+            <MatchCandidatesTable
+              candidates={matchCandidatesQuery.data.results}
+            />
           )}
         </div>
       )}
@@ -403,3 +504,47 @@ function EstimateItemsTable({ items }: { items: EstimateItem[] }) {
     </div>
   );
 }
+
+function MatchCandidatesTable({
+  candidates,
+}: {
+  candidates: MatchCandidate[];
+}) {
+  if (candidates.length === 0) {
+    return <p>Кандидаты пока не найдены. Сначала запусти Match.</p>;
+  }
+
+  return (
+    <div className="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Estimate item</th>
+            <th>Product SKU</th>
+            <th>Product</th>
+            <th>Confidence</th>
+            <th>Source</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          {candidates.map((candidate) => (
+            <tr key={candidate.id}>
+              <td>{candidate.estimate_item_name}</td>
+              <td>{candidate.product_sku}</td>
+              <td>{candidate.product_name}</td>
+              <td>{candidate.confidence}</td>
+              <td>
+                <span className={`badge badge-${candidate.source}`}>
+                  {candidate.source}
+                </span>
+              </td>
+              <td>{candidate.reason || "—"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
