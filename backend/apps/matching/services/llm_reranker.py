@@ -9,10 +9,10 @@ from apps.matching.dtos import (
     LLMRerankRequest,
     LLMRerankResult,
 )
+from apps.matching.exceptions import LLMRerankError
 from apps.matching.models import MatchCandidate
 from apps.matching.services.llm_client_factory import build_default_llm_client
 from apps.matching.services.llm_clients import LLMClientProtocol
-from apps.matching.exceptions import LLMRerankError
 
 
 class LLMRerankerService:

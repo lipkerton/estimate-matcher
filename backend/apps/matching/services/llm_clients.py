@@ -1,6 +1,6 @@
+import asyncio
 import json
 import re
-import asyncio
 from decimal import Decimal, InvalidOperation
 from typing import Any, Protocol
 

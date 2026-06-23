@@ -91,7 +91,7 @@ class PriceListParserService:
                     f"Cannot determine total rows count for Excel file: {file_path}"
                 )
 
-            total_rows = max(total_file_rows - start_row, 0) 
+            total_rows = max(total_file_rows - start_row, 0)
             self._set_total_rows(import_job, total_rows)
 
             items_to_create: list[SupplierPriceItem] = list()
