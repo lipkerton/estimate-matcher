@@ -62,7 +62,11 @@ class ExcelRowReader:
 
         try:
             sheet = self._get_xlsx_sheet(workbook, sheet_name)
-            return sheet.max_row
+
+            if sheet.max_row is not None:
+                return sheet.max_row
+
+            return sum(1 for _ in sheet.iter_rows(values_only=True))
         finally:
             workbook.close()
 

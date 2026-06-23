@@ -84,10 +84,14 @@ class PriceListParserService:
         self._mark_processing(import_job)
 
         try:
-            total_rows = max(
-                self.row_reader.get_total_rows(file_path, sheet_name) - start_row,
-                0,
-            )
+            total_file_rows = self.row_reader.get_total_rows(file_path, sheet_name)
+
+            if total_file_rows is None:
+                raise ValueError(
+                    f"Cannot determine total rows count for Excel file: {file_path}"
+                )
+
+            total_rows = max(total_file_rows - start_row, 0) 
             self._set_total_rows(import_job, total_rows)
 
             items_to_create: list[SupplierPriceItem] = list()
