@@ -66,3 +66,43 @@ export type ExcelPreview = {
   sheet_names: string[];
   rows: unknown[][];
 };
+
+export type PriceList = {
+  id: number;
+  supplier: number;
+  supplier_name: string;
+  import_job: number | null;
+  name: string;
+  items_count: number;
+  uploaded_at: string;
+};
+
+export type SupplierPriceItem = {
+  id: number;
+  price_list: number;
+  supplier_sku: string;
+  supplier_name: string;
+  unit: string;
+  price: string;
+  product: number | null;
+  product_name: string | null;
+  raw_row: Record<string, unknown>;
+  row_number: number | null;
+  created_at: string;
+};
+
+export type PriceListColumnMapping = {
+  sku?: number;
+  name: number;
+  unit?: number;
+  price: number;
+  start_row: number;
+  sheet_name?: string;
+};
+
+export type PriceListImportPayload = {
+  supplier: number;
+  import_file: number;
+  name: string;
+  column_mapping: PriceListColumnMapping;
+};
