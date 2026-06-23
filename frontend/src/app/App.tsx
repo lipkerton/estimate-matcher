@@ -1,0 +1,19 @@
+import { NavLink, Outlet } from "react-router-dom";
+
+export function App() {
+  return (
+    <div className="app-shell">
+      <aside className="sidebar">
+        <h1 className="logo">Estimate Matcher</h1>
+
+        <nav className="nav">
+          <NavLink to="/suppliers">Поставщики</NavLink>
+        </nav>
+      </aside>
+
+      <main className="main-content">
+        <Outlet />
+      </main>
+    </div>
+  );
+}
