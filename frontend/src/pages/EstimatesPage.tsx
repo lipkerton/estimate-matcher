@@ -1,5 +1,4 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -15,43 +14,15 @@ import {
 import { getImportFiles } from "../api/importFiles";
 import { getProjects } from "../api/projects";
 import { getProducts } from "../api/products";
-import type {
-  EstimateImportPayload,
-  EstimateItem,
-  MatchCandidate,
-  Product,
-} from "../shared/types";
 import { getMatchCandidatesByEstimate } from "../api/matching";
+import { EstimateItemsTable } from "../features/estimates/components/EstimateItemsTable";
+import { MatchCandidatesTable } from "../features/estimates/components/MatchCandidatesTable";
+import { EstimatesTable } from "../features/estimates/components/EstimatesTable";
+import { EstimateImportForm } from "../features/estimates/components/EstimateImportForm";
 
-
-type EstimateImportForm = {
-  project: string;
-  import_file: string;
-  name: string;
-  sku: string;
-  product_name: string;
-  unit: string;
-  quantity: string;
-  material_price: string;
-  installation_price: string;
-  start_row: string;
-};
 
 export function EstimatesPage() {
   const queryClient = useQueryClient();
-
-  const [form, setForm] = useState<EstimateImportForm>({
-    project: "",
-    import_file: "",
-    name: "",
-    sku: "0",
-    product_name: "1",
-    unit: "2",
-    quantity: "3",
-    material_price: "4",
-    installation_price: "5",
-    start_row: "1",
-  });
 
   const [selectedEstimateId, setSelectedEstimateId] = useState<number | null>(
     null,
@@ -94,11 +65,6 @@ export function EstimatesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["estimates"] });
       queryClient.invalidateQueries({ queryKey: ["import-jobs"] });
-
-      setForm((current) => ({
-        ...current,
-        name: "",
-      }));
     },
   });
 
@@ -195,31 +161,6 @@ export function EstimatesPage() {
     },
   });
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!form.project || !form.import_file || !form.name) {
-      return;
-    }
-
-    const payload: EstimateImportPayload = {
-      project: Number(form.project),
-      import_file: Number(form.import_file),
-      name: form.name,
-      column_mapping: {
-        sku: Number(form.sku),
-        name: Number(form.product_name),
-        unit: Number(form.unit),
-        quantity: Number(form.quantity),
-        material_price: Number(form.material_price),
-        installation_price: Number(form.installation_price),
-        start_row: Number(form.start_row),
-      },
-    };
-
-    importMutation.mutate(payload);
-  }
-
   return (
     <section>
       <div className="page-header">
@@ -232,178 +173,12 @@ export function EstimatesPage() {
         </div>
       </div>
 
-      <form className="card estimate-import-form" onSubmit={handleSubmit}>
-        <label>
-          Проект
-          <select
-            value={form.project}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                project: event.target.value,
-              }))
-            }
-            required
-          >
-            <option value="">Выберите проект</option>
-            {projectsQuery.data?.results.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label>
-          Excel-файл
-          <select
-            value={form.import_file}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                import_file: event.target.value,
-              }))
-            }
-            required
-          >
-            <option value="">Выберите файл</option>
-            {importFilesQuery.data?.results.map((file) => (
-              <option key={file.id} value={file.id}>
-                #{file.id} — {file.original_filename}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label>
-          Название сметы
-          <input
-            value={form.name}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                name: event.target.value,
-              }))
-            }
-            placeholder="Смета электрика — тест"
-            required
-          />
-        </label>
-
-        <div className="mapping-grid estimate-mapping-grid">
-          <label>
-            SKU
-            <input
-              type="number"
-              min="0"
-              value={form.sku}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  sku: event.target.value,
-                }))
-              }
-            />
-          </label>
-
-          <label>
-            Наименование
-            <input
-              type="number"
-              min="0"
-              value={form.product_name}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  product_name: event.target.value,
-                }))
-              }
-              required
-            />
-          </label>
-
-          <label>
-            Ед. изм.
-            <input
-              type="number"
-              min="0"
-              value={form.unit}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  unit: event.target.value,
-                }))
-              }
-            />
-          </label>
-
-          <label>
-            Количество
-            <input
-              type="number"
-              min="0"
-              value={form.quantity}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  quantity: event.target.value,
-                }))
-              }
-              required
-            />
-          </label>
-
-          <label>
-            Материал
-            <input
-              type="number"
-              min="0"
-              value={form.material_price}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  material_price: event.target.value,
-                }))
-              }
-            />
-          </label>
-
-          <label>
-            Монтаж
-            <input
-              type="number"
-              min="0"
-              value={form.installation_price}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  installation_price: event.target.value,
-                }))
-              }
-            />
-          </label>
-
-          <label>
-            Первая строка данных
-            <input
-              type="number"
-              min="0"
-              value={form.start_row}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  start_row: event.target.value,
-                }))
-              }
-              required
-            />
-          </label>
-        </div>
-
-        <button type="submit" disabled={importMutation.isPending}>
-          {importMutation.isPending ? "Запускаем импорт..." : "Импортировать смету"}
-        </button>
-      </form>
+      <EstimateImportForm
+        projects={projectsQuery.data?.results ?? []}
+        importFiles={importFilesQuery.data?.results ?? []}
+        onSubmit={(payload) => importMutation.mutate(payload)}
+        isPending={importMutation.isPending}
+      />
 
       {importMutation.isError && (
         <div className="error-box">
@@ -472,55 +247,14 @@ export function EstimatesPage() {
         )}
 
         {estimatesQuery.data && (
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Проект</th>
-                <th>Название</th>
-                <th>Строк</th>
-                <th>Дата создания</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {estimatesQuery.data.results.map((estimate) => (
-                <tr key={estimate.id}>
-                  <td>{estimate.id}</td>
-                  <td>{estimate.project_name}</td>
-                  <td>{estimate.name}</td>
-                  <td>{estimate.items_count}</td>
-                  <td>{new Date(estimate.created_at).toLocaleString()}</td>
-                  <td>
-                    <div className="row-actions">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedEstimateId(estimate.id)}
-                        >
-                        Позиции
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => matchMutation.mutate(estimate.id)}
-                          disabled={matchMutation.isPending}
-                        >
-                        Match
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => llmRerankMutation.mutate(estimate.id)}
-                          disabled={llmRerankMutation.isPending}
-                        >
-                        LLM rerank
-                        </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <EstimatesTable
+            estimates={estimatesQuery.data.results}
+            onSelectEstimate={setSelectedEstimateId}
+            onRunMatch={(estimateId) => matchMutation.mutate(estimateId)}
+            onRunLLMRerank={(estimateId) => llmRerankMutation.mutate(estimateId)}
+            isMatchPending={matchMutation.isPending}
+            isLLMRerankPending={llmRerankMutation.isPending}
+          />
         )}
       </div>
 
@@ -579,202 +313,3 @@ export function EstimatesPage() {
     </section>
   );
 }
-
-function EstimateItemsTable({
-  items,
-  products,
-  onSetProduct,
-  onMarkNoMatch,
-  onResetMatch,
-  isActionPending,
-}: {
-  items: EstimateItem[];
-  products: Product[];
-  onSetProduct: (estimateItemId: number, productId: number) => void;
-  onMarkNoMatch: (estimateItemId: number) => void;
-  onResetMatch: (estimateItemId: number) => void;
-  isActionPending: boolean;
-}) {
-  if (items.length === 0) {
-    return <p>Позиции пока не найдены. Возможно, Celery ещё обрабатывает файл.</p>;
-  }
-
-  return (
-    <div className="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Строка</th>
-            <th>SKU</th>
-            <th>Наименование</th>
-            <th>Ед. изм.</th>
-            <th>Кол-во</th>
-            <th>Материал</th>
-            <th>Монтаж</th>
-            <th>Текущий товар</th>
-            <th>Статус</th>
-            <th>Ручной выбор</th>
-            <th>Действия</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item) => (
-            <EstimateItemRow
-              key={item.id}
-              item={item}
-              products={products}
-              onSetProduct={onSetProduct}
-              onMarkNoMatch={onMarkNoMatch}
-              onResetMatch={onResetMatch}
-              isActionPending={isActionPending}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function EstimateItemRow({
-  item,
-  products,
-  onSetProduct,
-  onMarkNoMatch,
-  onResetMatch,
-  isActionPending,
-}: {
-  item: EstimateItem;
-  products: Product[];
-  onSetProduct: (estimateItemId: number, productId: number) => void;
-  onMarkNoMatch: (estimateItemId: number) => void;
-  onResetMatch: (estimateItemId: number) => void;
-  isActionPending: boolean;
-}) {
-  const [selectedProductId, setSelectedProductId] = useState("");
-
-  function handleSetProduct() {
-    if (!selectedProductId) {
-      return;
-    }
-
-    onSetProduct(item.id, Number(selectedProductId));
-    setSelectedProductId("");
-  }
-
-  return (
-    <tr>
-      <td>{item.row_number ?? "—"}</td>
-      <td>{item.raw_sku || "—"}</td>
-      <td>{item.raw_name}</td>
-      <td>{item.unit || "—"}</td>
-      <td>{item.quantity}</td>
-      <td>{item.material_price ?? "—"}</td>
-      <td>{item.installation_price ?? "—"}</td>
-      <td>
-        {item.product_name ? (
-          <div>
-            <strong>{item.product_sku}</strong>
-            <br />
-            <span>{item.product_name}</span>
-          </div>
-        ) : (
-          "—"
-        )}
-      </td>
-      <td>
-        <span className={`status-pill status-${item.matching_status}`}>
-          {item.matching_status}
-        </span>
-        {item.matching_confidence && (
-          <div className="confidence-text">
-            {item.matching_confidence}
-          </div>
-        )}
-      </td>
-      <td>
-        <select
-          value={selectedProductId}
-          onChange={(event) => setSelectedProductId(event.target.value)}
-        >
-          <option value="">Выберите товар</option>
-          {products.map((product) => (
-            <option key={product.id} value={product.id}>
-              {product.sku} — {product.name}
-            </option>
-          ))}
-        </select>
-      </td>
-      <td>
-        <div className="row-actions">
-          <button
-            type="button"
-            onClick={handleSetProduct}
-            disabled={!selectedProductId || isActionPending}
-          >
-            Set
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onMarkNoMatch(item.id)}
-            disabled={isActionPending}
-          >
-            No match
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onResetMatch(item.id)}
-            disabled={isActionPending}
-          >
-            Reset
-          </button>
-        </div>
-      </td>
-    </tr>
-  );
-}
-
-function MatchCandidatesTable({
-  candidates,
-}: {
-  candidates: MatchCandidate[];
-}) {
-  if (candidates.length === 0) {
-    return <p>Кандидаты пока не найдены. Сначала запусти Match.</p>;
-  }
-
-  return (
-    <div className="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Estimate item</th>
-            <th>Product SKU</th>
-            <th>Product</th>
-            <th>Confidence</th>
-            <th>Source</th>
-            <th>Reason</th>
-          </tr>
-        </thead>
-        <tbody>
-          {candidates.map((candidate) => (
-            <tr key={candidate.id}>
-              <td>{candidate.estimate_item_name}</td>
-              <td>{candidate.product_sku}</td>
-              <td>{candidate.product_name}</td>
-              <td>{candidate.confidence}</td>
-              <td>
-                <span className={`badge badge-${candidate.source}`}>
-                  {candidate.source}
-                </span>
-              </td>
-              <td>{candidate.reason || "—"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
