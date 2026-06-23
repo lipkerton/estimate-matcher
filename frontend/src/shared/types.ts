@@ -38,3 +38,16 @@ export type ProductCreatePayload = {
   group: number | null;
   normalized_name?: string;
 };
+
+export type Project = {
+  id: number;
+  name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProjectCreatePayload = {
+  name: string;
+  description: string;
+};

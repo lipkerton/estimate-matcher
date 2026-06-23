@@ -12,6 +12,7 @@ export function App() {
         <nav className="nav">
           <NavLink to="/suppliers">Поставщики</NavLink>
           <NavLink to="/products">Каталог товаров</NavLink>
+          <NavLink to="/projects">Проекты</NavLink>
         </nav>
 
       </aside>
