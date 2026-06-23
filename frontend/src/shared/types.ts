@@ -188,3 +188,41 @@ export type AsyncTaskStartResponse = {
   task_id: string;
   estimate_id: number;
 };
+
+export type EstimateItemSetProductPayload = {
+  product: number;
+};
+
+export type EstimateItemActionResponse = {
+  id: number;
+  product: number | null;
+  product_name: string | null;
+  product_sku: string | null;
+  matching_status:
+    | "not_processed"
+    | "matched"
+    | "unmatched"
+    | "no_match"
+    | "manual";
+  matching_confidence: string | null;
+};
+
+export type ImportJobStatus = "pending" | "processing" | "success" | "failed";
+
+export type ImportJobType = "price_list" | "estimate";
+
+export type ImportJob = {
+  id: number;
+  import_type: ImportJobType;
+  status: ImportJobStatus;
+  import_file: number;
+  original_filename: string;
+  column_mapping: Record<string, unknown>;
+  total_rows: number;
+  processed_rows: number;
+  progress: number;
+  error_message: string;
+  created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+};

@@ -6,6 +6,8 @@ import type {
   EstimateItem,
   EstimateLLMRerankPayload,
   EstimateMatchPayload,
+  EstimateItemActionResponse,
+  EstimateItemSetProductPayload,
   PaginatedResponse,
 } from "../shared/types";
 
@@ -61,6 +63,38 @@ export async function runEstimateLLMRerank(
   const response = await apiClient.post<AsyncTaskStartResponse>(
     `/estimates/${estimateId}/llm-rerank/`,
     payload,
+  );
+
+  return response.data;
+}
+
+export async function setEstimateItemProduct(
+  estimateItemId: number,
+  payload: EstimateItemSetProductPayload,
+): Promise<EstimateItemActionResponse> {
+  const response = await apiClient.post<EstimateItemActionResponse>(
+    `/estimate-items/${estimateItemId}/set-product/`,
+    payload,
+  );
+
+  return response.data;
+}
+
+export async function markEstimateItemNoMatch(
+  estimateItemId: number,
+): Promise<EstimateItemActionResponse> {
+  const response = await apiClient.post<EstimateItemActionResponse>(
+    `/estimate-items/${estimateItemId}/mark-no-match/`,
+  );
+
+  return response.data;
+}
+
+export async function resetEstimateItemMatch(
+  estimateItemId: number,
+): Promise<EstimateItemActionResponse> {
+  const response = await apiClient.post<EstimateItemActionResponse>(
+    `/estimate-items/${estimateItemId}/reset-match/`,
   );
 
   return response.data;

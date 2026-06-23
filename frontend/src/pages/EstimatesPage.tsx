@@ -6,15 +6,20 @@ import {
   getEstimateItems,
   getEstimates,
   importEstimate,
+  markEstimateItemNoMatch,
+  resetEstimateItemMatch,
   runEstimateLLMRerank,
   runEstimateMatch,
+  setEstimateItemProduct,
 } from "../api/estimates";
 import { getImportFiles } from "../api/importFiles";
 import { getProjects } from "../api/projects";
+import { getProducts } from "../api/products";
 import type {
   EstimateImportPayload,
   EstimateItem,
   MatchCandidate,
+  Product,
 } from "../shared/types";
 import { getMatchCandidatesByEstimate } from "../api/matching";
 
@@ -67,6 +72,11 @@ export function EstimatesPage() {
     queryFn: getEstimates,
   });
 
+  const productsQuery = useQuery({
+    queryKey: ["products"],
+    queryFn: getProducts,
+  });
+
   const estimateItemsQuery = useQuery({
     queryKey: ["estimate-items", selectedEstimateId],
     queryFn: () => getEstimateItems(selectedEstimateId!),
@@ -116,6 +126,72 @@ export function EstimatesPage() {
       queryClient.invalidateQueries({ queryKey: ["estimates"] });
       queryClient.invalidateQueries({ queryKey: ["estimate-items", estimateId] });
       queryClient.invalidateQueries({ queryKey: ["match-candidates", estimateId] });
+    },
+  });
+  
+  const setProductMutation = useMutation({
+    mutationFn: ({
+      estimateItemId,
+      productId,
+    }: {
+      estimateItemId: number;
+      productId: number;
+    }) =>
+      setEstimateItemProduct(estimateItemId, {
+        product: productId,
+      }),
+    onSuccess: () => {
+      if (selectedEstimateId === null) {
+        return;
+      }
+
+      queryClient.invalidateQueries({
+        queryKey: ["estimate-items", selectedEstimateId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["match-candidates", selectedEstimateId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["estimates"],
+      });
+    },
+  });
+
+  const markNoMatchMutation = useMutation({
+    mutationFn: markEstimateItemNoMatch,
+    onSuccess: () => {
+      if (selectedEstimateId === null) {
+        return;
+      }
+
+      queryClient.invalidateQueries({
+        queryKey: ["estimate-items", selectedEstimateId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["match-candidates", selectedEstimateId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["estimates"],
+      });
+    },
+  });
+
+  const resetMatchMutation = useMutation({
+    mutationFn: resetEstimateItemMatch,
+    onSuccess: () => {
+      if (selectedEstimateId === null) {
+        return;
+      }
+
+      queryClient.invalidateQueries({
+        queryKey: ["estimate-items", selectedEstimateId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["match-candidates", selectedEstimateId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["estimates"],
+      });
     },
   });
 
@@ -368,6 +444,24 @@ export function EstimatesPage() {
         </div>
       )}
 
+      {setProductMutation.isError && (
+        <div className="error-box">
+          Не удалось вручную назначить товар.
+        </div>
+      )}
+
+      {markNoMatchMutation.isError && (
+        <div className="error-box">
+          Не удалось пометить позицию как no match.
+        </div>
+      )}
+
+      {resetMatchMutation.isError && (
+        <div className="error-box">
+          Не удалось сбросить matching.
+        </div>
+      )}
+
       <div className="card">
         <h3>Список смет</h3>
 
@@ -441,7 +535,27 @@ export function EstimatesPage() {
           )}
 
           {estimateItemsQuery.data && (
-            <EstimateItemsTable items={estimateItemsQuery.data.results} />
+            <EstimateItemsTable
+              items={estimateItemsQuery.data.results}
+              products={productsQuery.data?.results ?? []}
+              onSetProduct={(estimateItemId, productId) =>
+                setProductMutation.mutate({
+                  estimateItemId,
+                  productId,
+                })
+              }
+              onMarkNoMatch={(estimateItemId) =>
+                markNoMatchMutation.mutate(estimateItemId)
+              }
+              onResetMatch={(estimateItemId) =>
+                resetMatchMutation.mutate(estimateItemId)
+              }
+              isActionPending={
+                setProductMutation.isPending ||
+                markNoMatchMutation.isPending ||
+                resetMatchMutation.isPending
+              }
+            />
           )}
         </div>
       )}
@@ -466,7 +580,21 @@ export function EstimatesPage() {
   );
 }
 
-function EstimateItemsTable({ items }: { items: EstimateItem[] }) {
+function EstimateItemsTable({
+  items,
+  products,
+  onSetProduct,
+  onMarkNoMatch,
+  onResetMatch,
+  isActionPending,
+}: {
+  items: EstimateItem[];
+  products: Product[];
+  onSetProduct: (estimateItemId: number, productId: number) => void;
+  onMarkNoMatch: (estimateItemId: number) => void;
+  onResetMatch: (estimateItemId: number) => void;
+  isActionPending: boolean;
+}) {
   if (items.length === 0) {
     return <p>Позиции пока не найдены. Возможно, Celery ещё обрабатывает файл.</p>;
   }
@@ -483,25 +611,127 @@ function EstimateItemsTable({ items }: { items: EstimateItem[] }) {
             <th>Кол-во</th>
             <th>Материал</th>
             <th>Монтаж</th>
-            <th>Статус matching</th>
+            <th>Текущий товар</th>
+            <th>Статус</th>
+            <th>Ручной выбор</th>
+            <th>Действия</th>
           </tr>
         </thead>
         <tbody>
           {items.map((item) => (
-            <tr key={item.id}>
-              <td>{item.row_number ?? "—"}</td>
-              <td>{item.raw_sku || "—"}</td>
-              <td>{item.raw_name}</td>
-              <td>{item.unit || "—"}</td>
-              <td>{item.quantity}</td>
-              <td>{item.material_price ?? "—"}</td>
-              <td>{item.installation_price ?? "—"}</td>
-              <td>{item.matching_status}</td>
-            </tr>
+            <EstimateItemRow
+              key={item.id}
+              item={item}
+              products={products}
+              onSetProduct={onSetProduct}
+              onMarkNoMatch={onMarkNoMatch}
+              onResetMatch={onResetMatch}
+              isActionPending={isActionPending}
+            />
           ))}
         </tbody>
       </table>
     </div>
+  );
+}
+
+function EstimateItemRow({
+  item,
+  products,
+  onSetProduct,
+  onMarkNoMatch,
+  onResetMatch,
+  isActionPending,
+}: {
+  item: EstimateItem;
+  products: Product[];
+  onSetProduct: (estimateItemId: number, productId: number) => void;
+  onMarkNoMatch: (estimateItemId: number) => void;
+  onResetMatch: (estimateItemId: number) => void;
+  isActionPending: boolean;
+}) {
+  const [selectedProductId, setSelectedProductId] = useState("");
+
+  function handleSetProduct() {
+    if (!selectedProductId) {
+      return;
+    }
+
+    onSetProduct(item.id, Number(selectedProductId));
+    setSelectedProductId("");
+  }
+
+  return (
+    <tr>
+      <td>{item.row_number ?? "—"}</td>
+      <td>{item.raw_sku || "—"}</td>
+      <td>{item.raw_name}</td>
+      <td>{item.unit || "—"}</td>
+      <td>{item.quantity}</td>
+      <td>{item.material_price ?? "—"}</td>
+      <td>{item.installation_price ?? "—"}</td>
+      <td>
+        {item.product_name ? (
+          <div>
+            <strong>{item.product_sku}</strong>
+            <br />
+            <span>{item.product_name}</span>
+          </div>
+        ) : (
+          "—"
+        )}
+      </td>
+      <td>
+        <span className={`status-pill status-${item.matching_status}`}>
+          {item.matching_status}
+        </span>
+        {item.matching_confidence && (
+          <div className="confidence-text">
+            {item.matching_confidence}
+          </div>
+        )}
+      </td>
+      <td>
+        <select
+          value={selectedProductId}
+          onChange={(event) => setSelectedProductId(event.target.value)}
+        >
+          <option value="">Выберите товар</option>
+          {products.map((product) => (
+            <option key={product.id} value={product.id}>
+              {product.sku} — {product.name}
+            </option>
+          ))}
+        </select>
+      </td>
+      <td>
+        <div className="row-actions">
+          <button
+            type="button"
+            onClick={handleSetProduct}
+            disabled={!selectedProductId || isActionPending}
+          >
+            Set
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onMarkNoMatch(item.id)}
+            disabled={isActionPending}
+          >
+            No match
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onResetMatch(item.id)}
+            disabled={isActionPending}
+          >
+            Reset
+          </button>
+        </div>
+      </td>
+    </tr>
   );
 }
 
