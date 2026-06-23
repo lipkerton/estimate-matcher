@@ -31,6 +31,12 @@ class AppSettings(BaseSettings):
     LLM_MODEL: str = Field(default="deepseek-r1:1.5b")
     LLM_TIMEOUT_SECONDS: int = Field(default=120)
 
+    OPENSEARCH_URL: str = Field(default="http://localhost:9200")
+
+    RAG_INDEX_NAME: str = Field(default="estimate_matcher_documents")
+    RAG_EMBEDDING_DIMENSIONS: int = Field(default=384)
+    RAG_ENABLED: bool = Field(default=True)
+
     @property
     def allowed_hosts_list(self) -> list[str]:
         return [host.strip() for host in self.DJANGO_ALLOWED_HOSTS.split(",") if host]

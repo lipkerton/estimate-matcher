@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     "apps.imports",
     "apps.prices",
     "apps.matching",
+    "apps.rag",
 ]
 
 MIDDLEWARE = [
